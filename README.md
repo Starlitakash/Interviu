@@ -1,109 +1,248 @@
 # Interviu — Adaptive AI Technical Interviewer
 
-> **Hackathon**: ABTalks Vibe Coding Hackathon  
-> **Architecture**: LangGraph, FastAPI, In-Memory RAG, Pydantic V2  
+> **An AI interviewer that remembers what you learned.**
 
----
+Interviu is a personalized technical interviewer built for the **ABTalks AI Cohort**. It turns a candidate's profile, learning journey, completed missions, curriculum topics, objectives, and interview responses into a curriculum-grounded interview that adapts one answer at a time.
 
-## 🚀 Executive Summary
+## Live Demo
 
-**Interviu** is a stateful, adaptive AI technical interviewer designed to conduct automated, real-time developer assessments. By orchestrating a cyclic state machine with **LangGraph** and matching questions against a localized **Curriculum Indexer (RAG)**, Interviu guarantees strict concept coverage, calibrates question difficulty dynamically based on candidate signals, and synthesizes detailed, hiring-manager-grade feedback reports.
+**[Open Interviu](https://interviu-573j.onrender.com)** · [Production API](https://interviu-573j.onrender.com/api/interview) · [Swagger Docs](https://interviu-573j.onrender.com/docs)
 
----
+> The app runs on Render's free tier. If it has been inactive, the first request may take a few seconds to spin up—please wait briefly and refresh.
 
-## 🎨 Interactive Landing Page
+## Problem
 
-The project features a premium, responsively stacked developer interface built using glassmorphic cards, lavender ambient glow gradients, and subtle rotating neural visualizations.
+Finishing a technical AI course does not always translate into confidently explaining what was built or why particular engineering decisions were made. Generic interviews compound the problem: they cannot distinguish between topics a learner completed, concepts they only partially understand, and skills they have not encountered yet.
 
-- **Desktop View**: A two-column dashboard previewing candidate profile (`Sarah Johnson`), current topic, active question card, and interview progress.
-- **Mobile View**: Intelligently stacked layouts optimized for smaller screens with horizontal overflow protection.
-- **Static Assets**: Direct serving via FastAPI routes, making frontend hosting zero-configuration.
+## Solution
 
----
+Interviu conducts a candidate-specific interview from the learner's actual journey. It retrieves relevant curriculum context, plans topics and objectives, asks grounded questions, evaluates each response, and selects the appropriate next move. The result is an interview that is personal, adaptive, and tied to what the candidate learned.
 
-## 🛠️ Technical Architecture
+## Key Features
 
-Interviu's evaluation engine is modeled as a state machine using **LangGraph**. The execution flow runs cyclically on each candidate turn:
+- Personalized interview context from profiles, learning journeys, missions, and curriculum objectives.
+- In-memory keyword retrieval for curriculum-grounded questions.
+- LangGraph-powered orchestration for stateful interview flow.
+- Adaptive follow-ups based on response quality.
+- Meaningless-answer detection for empty, short, or non-substantive responses.
+- Candidate-specific final feedback with scores, strengths, gaps, coverage, and next steps.
+- REST API with interactive OpenAPI/Swagger documentation.
 
-```mermaid
-graph TD
-    A[Start Session] --> B[Planner Agent: Build Queue]
-    B --> C[Generator Agent: Propose Question]
-    C --> D[Candidate Response]
-    D --> E[Evaluator Agent: Analyze & Score]
-    E --> F{Status Decision}
-    F -- "Budget Remaining & Day Coverage < 4" --> G[Difficulty Controller & Churner]
-    G --> C
-    F -- "Completed or Force Ended" --> H[Feedback Agent: Generate Report]
-    H --> I[End Session]
+## Adaptive Interviewing
+
+| Candidate response | Interviu's next step |
+| --- | --- |
+| Strong answer | Evaluates the response and asks a deeper follow-up. |
+| Partial answer | Identifies missing concepts and asks a targeted follow-up. |
+| Meaningless answer (`ok`, `idk`, or empty) | Records the signal and moves forward without assuming competency. |
+
+## Candidate Evaluation
+
+At the end of an interview, Interviu aggregates turn-level evaluations into a report that can include:
+
+- Overall score and hiring recommendation
+- Topic-wise performance and curriculum coverage
+- Strengths and areas for growth
+- Interview statistics
+- Recommended next steps
+
+## System Architecture
+
+```text
+Candidate Profile
+        │
+        ▼
+Curriculum Retrieval → Interview Planner → Question Generator
+                                             │
+                                             ▼
+                                      Candidate Response
+                                             │
+                                             ▼
+Response Evaluator → Follow-Up / Topic Transition → Interview State
+                                                        │
+                                                        ▼
+                                              Feedback Aggregator
+                                                        │
+                                                        ▼
+                                                   Final Report
 ```
 
-### Core Components
-1. **Stateful LangGraph Orchestration**: Loops dynamically through planning, generation, answer scoring, and feedback synthesis nodes.
-2. **Dynamic Calibration**: Uses consecutive response tracking to step-up or step-down difficulty levels (`very_easy`, `easy`, `medium`, `medium_plus`, `hard`).
-3. **Deterministic Curriculum RAG**: Uses a fast in-memory keyword matching indexer (`CurriculumIndexer`) to retrieve grounded learning concepts.
-4. **Hiring Report Generation**: Creates detailed candidate assessments with topic metrics, strengths, growth areas, and hiring recommendations.
+## LangGraph Workflow
 
----
-
-## 📂 Repository Structure
-
+```text
+Interview Request
+  → Session Initialization
+  → Curriculum Retrieval
+  → Interview Planning
+  → Question Generation
+  → Candidate Response
+  → Response Evaluation
+  → Conditional Routing
+      ├─ Strong       → Deeper Follow-Up
+      ├─ Partial      → Missing-Concept Follow-Up
+      ├─ Meaningless  → Move Forward
+      └─ Complete     → Final Feedback → Final Evaluation Report
 ```
-d:/Interviu/
+
+## Tech Stack
+
+| Area | Technology |
+| --- | --- |
+| Frontend | HTML, CSS, JavaScript |
+| Backend | FastAPI, Uvicorn |
+| LLM | Groq |
+| AI orchestration & state | LangGraph / Session State |
+| Retrieval | In-memory keyword retrieval |
+| Validation | Pydantic |
+| API documentation | OpenAPI / Swagger |
+| Testing | Pytest |
+| Deployment | Render |
+| Version control | Git + GitHub |
+
+## Project Structure
+
+```text
+Interviu/
 ├── app/
-│   ├── config/          # Environment settings & constraints
-│   ├── schemas/         # Pydantic validation schemas & InterviewState
-│   ├── models/          # Domain dataclasses
-│   ├── utils/           # LLM clients, loggers, and formatters
-│   ├── retrieval/       # Curriculum chunker & in-memory keyword retriever
-│   ├── evaluation/      # Difficulty controller & coverage checkers
-│   ├── prompts/         # Role-anchored templates
-│   ├── agents/          # Planner, Generator, Evaluator, Feedback agents
-│   ├── graph/           # LangGraph workflow graphs & conditional routing
-│   ├── services/        # Session manager & interview engine
-│   ├── routers/         # FastAPI REST endpoints
-│   └── main.py          # FastAPI application entrypoint
-├── tests/               # Pytest unit & API integration test suite
-├── PROMPTS.md           # Continuous AI usage hackathon log
-├── implementation_plan.md # Engineering design blueprint
-├── requirements.txt     # Python dependency manifest
-└── README.md            # Project documentation (this file)
+│   ├── config/       # Environment settings & constraints
+│   ├── schemas/      # Pydantic validation schemas & interview state
+│   ├── models/       # Domain dataclasses
+│   ├── utils/        # LLM clients, loggers, and formatters
+│   ├── retrieval/    # Curriculum chunker & in-memory keyword retriever
+│   ├── evaluation/   # Difficulty controller & coverage checkers
+│   ├── prompts/      # Role-anchored templates
+│   ├── agents/       # Planner, generator, evaluator & feedback agents
+│   ├── graph/        # LangGraph workflows & conditional routing
+│   ├── services/     # Session manager & interview engine
+│   ├── routers/      # FastAPI REST endpoints
+│   └── main.py       # FastAPI application entrypoint
+├── tests/            # Unit & API integration tests
+├── PROMPTS.md        # Continuous AI usage hackathon log
+├── implementation_plan.md
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
 
----
+## API Documentation
 
-## ⚡ Quick Start
+### `POST /api/interview`
 
-### 1. Installation
-Install the required dependencies (cleanly packaged without heavy C++ compiling requirements):
+Start an interview by sending a session ID and candidate profile:
+
+```json
+{
+  "sessionId": "candidate-session-001",
+  "candidate": {
+    "...": "candidate profile"
+  }
+}
+```
+
+Continue the same interview with the candidate's answer:
+
+```json
+{
+  "sessionId": "candidate-session-001",
+  "message": "Candidate's technical answer..."
+}
+```
+
+Example ongoing response:
+
+```json
+{
+  "reply": "Next interview question...",
+  "done": false,
+  "feedback": null
+}
+```
+
+When the interview is complete, the response includes the final evaluation:
+
+```json
+{
+  "reply": "Interview completed.",
+  "done": true,
+  "feedback": {
+    "summary": "...",
+    "strengths": [],
+    "gaps": [],
+    "next": [],
+    "overall_score": 0,
+    "hiring_recommendation": "...",
+    "topic_breakdown": [],
+    "interview_statistics": {}
+  }
+}
+```
+
+Explore the full interactive contract at [Swagger Docs](https://interviu-573j.onrender.com/docs).
+
+## Local Setup
+
 ```bash
-python -m pip install -r requirements.txt
+git clone https://github.com/YOUR_USERNAME/Interviu.git
+cd Interviu
 ```
 
-### 2. Environment Variables
-Copy `.env.example` to `.env` and fill in your keys:
+Create and activate a virtual environment:
+
 ```bash
-GROQ_API_KEY=your_groq_api_key
-STITCH_API_KEY=your_stitch_api_key
-PRIMARY_LLM_PROVIDER=groq
-PRIMARY_MODEL_NAME=qwen/qwen3.6-27b
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# macOS / Linux
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-### 3. Start local development server
+Install dependencies and set your Groq API key:
+
 ```bash
-python -m uvicorn app.main:app --reload --port 8000
+pip install -r requirements.txt
 ```
-- Access the Web UI interface: `http://localhost:8000/`
-- Access interactive API docs: `http://localhost:8000/docs`
 
-### 4. Run tests
+```env
+GROQ_API_KEY=your_api_key_here
+```
+
+Run the application:
+
+```bash
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+- Application: `http://localhost:8000`
+- Swagger: `http://localhost:8000/docs`
+
+## Deployment
+
+Interviu is deployed on [Render](https://interviu-573j.onrender.com). Configure `GROQ_API_KEY` as an environment variable in your deployment environment; do not place it in source code.
+
+## Testing
+
 ```bash
 python -m pytest -v
 ```
 
----
+## Key Design Decisions
 
-## 📄 License
+- **Curriculum grounding:** Retrieval ties interview questions to the learner's completed curriculum instead of relying on generic prompts.
+- **Stateful orchestration:** LangGraph maintains interview context and routes each turn according to the evaluation result.
+- **Honest progression:** Meaningless responses trigger forward movement rather than an unsupported claim of demonstrated knowledge.
+- **Actionable output:** The final report combines turn-level evaluations into feedback a candidate can use.
 
-This project is licensed under the MIT License - see the [LICENSE](file:///d:/Interviu/LICENSE) file for details.
+## Security
 
+Never commit API keys or `.env` files to GitHub. Keep secrets such as `GROQ_API_KEY` in local environment files and deployment-platform environment variables.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Author
+
+**Akash Singh**  
+Built for the **ABTalks AI Cohort**.
