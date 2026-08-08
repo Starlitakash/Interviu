@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: interviu
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PRIMARY_LLM_PROVIDER
+        value: groq
+      - key: PRIMARY_MODEL_NAME
+        value: qwen/qwen3.6-27b
+      - key: GROQ_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: TEMPERATURE_PLANNER
+        value: "0.3"
+      - key: TEMPERATURE_GENERATOR
+        value: "0.7"
+      - key: TEMPERATURE_EVALUATOR
+        value: "0.2"
+      - key: TEMPERATURE_FEEDBACK
+        value: "0.3"
+      - key: MIN_CURRICULUM_DAYS
+        value: "4"
+      - key: DEFAULT_QUESTION_BUDGET
+        value: "8"
+      - key: MAX_QUESTIONS_PER_TOPIC
+        value: "3"
+      - key: GROQ_API_KEY
+        sync: false   # set manually in Render dashboard (secret)
+      - key: STITCH_API_KEY
+        sync: false   # set manually in Render dashboard (secret)
