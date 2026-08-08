@@ -1,0 +1,8 @@
+{
+  "name": "Jane Developer",
+  "experience_years": 3.5,
+  "skills": ["Python", "FastAPI", "PostgreSQL", "Docker", "REST APIs"],
+  "education": "BS Computer Science",
+  "projects": ["Microservices Backend for Fintech Startup"],
+  "current_role": "Software Engineer"
+}

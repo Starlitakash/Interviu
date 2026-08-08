@@ -1,0 +1,52 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "title": "Python Core & Memory Management",
+      "topics": [
+        {
+          "name": "Dynamic Typing & GIL",
+          "content": "Python uses dynamic typing determined at runtime. The Global Interpreter Lock (GIL) synchronizes thread execution.",
+          "learning_objectives": ["Understand dynamic typing", "Explain GIL impact on concurrency"],
+          "key_concepts": ["Dynamic typing", "GIL", "Garbage collection"]
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "title": "Object-Oriented Programming & Patterns",
+      "topics": [
+        {
+          "name": "Dunder Methods & Polymorphism",
+          "content": "Special methods like __init__ and __repr__ enable custom operator overloading and polymorphism.",
+          "learning_objectives": ["Implement dunder methods", "Use OOP polymorphism"],
+          "key_concepts": ["Dunder methods", "Encapsulation", "Polymorphism"]
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "title": "REST API Architecture & Web Services",
+      "topics": [
+        {
+          "name": "RESTful Principles & Error Handling",
+          "content": "REST APIs use standard HTTP verbs (GET, POST, PUT, DELETE) and status codes (200, 400, 500) with stateless request handling.",
+          "learning_objectives": ["Design idempotent endpoints", "Handle HTTP errors gracefully"],
+          "key_concepts": ["Statelessness", "Idempotency", "HTTP Verbs", "Middleware"]
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "title": "Database Design & ORM Query Optimization",
+      "topics": [
+        {
+          "name": "Indexes & N+1 Query Problem",
+          "content": "Database indexes improve search speed. The N+1 query problem occurs when lazy loading causes excessive SQL queries.",
+          "learning_objectives": ["Optimize SQL queries", "Prevent N+1 query issues"],
+          "key_concepts": ["Indexes", "Join optimization", "N+1 Problem", "Transactions"]
+        }
+      ]
+    }
+  ]
+}
