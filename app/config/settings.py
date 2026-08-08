@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    STITCH_API_KEY: str = os.getenv("STITCH_API_KEY", "your_stitch_api_key_here")
+    STITCH_API_KEY: str = os.getenv("STITCH_API_KEY", "")
 
     # LLM Settings (Groq + Qwen 3 / Qwen 2.5 Coder)
     PRIMARY_LLM_PROVIDER: str = "groq"
